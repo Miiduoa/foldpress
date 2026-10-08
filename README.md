@@ -1,16 +1,16 @@
 # Foldpress
 
-一份 PDF，一台雙面印表機，一本小書。
-
-Foldpress 把一般 PDF 重新排列成騎馬釘小冊：補齊四的倍數、安排每張紙的正反面、等比例置中，再輸出可列印的 PDF。攝影小誌、講義、讀書筆記，都可以從同一張桌子開始。
+在瀏覽器內把 PDF 排成可雙面列印的騎馬釘小冊。自動補齊四的倍數、安排正反面頁序，並輸出拼版 PDF。
 
 [開啟 Foldpress](https://miiduoa.github.io/foldpress/) · [設計與實作取捨](docs/decisions.md)
 
 ![Foldpress 工作區](docs/screenshot.png)
 
-## 在瀏覽器裡完成
+[手機畫面](docs/mobile.png)
 
-- 拖入 PDF，或直接操作內建的 12 頁範例。
+## 使用
+
+- 選擇或拖入 PDF。內建 12 頁測試冊，可用頁碼與向上箭頭確認折頁順序和雙面翻轉方向。
 - 選 A4、A3 或 Letter，設定左／右裝訂與 0–20 mm 留白。
 - 檢查每張紙的正反面。預覽由**即將下載的同一份 PDF** 渲染。
 - 下載後以橫式、實際大小、雙面短邊翻轉列印，再依序套疊、對折、裝訂。
@@ -64,9 +64,9 @@ npm run preview
 
 ```text
 src/imposition.ts    頁序、輸入驗證、裁切與旋轉處理、PDF 輸出
-src/sample.ts        原創 12 頁 Paper studies 範例
+src/sample.ts        12 頁列印測試冊
 src/main.ts          檔案匯入、版本控制、預覽與下載
-src/style.css        排版、紙張工作台與響應式介面
+src/style.css        設定面板、紙張預覽與響應式介面
 tests/               頁序不變量與實際 PDF 內容測試
 ```
 

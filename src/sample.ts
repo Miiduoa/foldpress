@@ -1,133 +1,111 @@
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 
-/** Original twelve-page specimen; all artwork is vector geometry and live type. */
+/** A numbered twelve-page document for checking duplex orientation and fold order. */
 export async function createSample(): Promise<Uint8Array> {
   const pdf = await PDFDocument.create();
-  const serif = await pdf.embedFont(StandardFonts.TimesRoman);
-  const italic = await pdf.embedFont(StandardFonts.TimesRomanItalic);
-  const sans = await pdf.embedFont(StandardFonts.Helvetica);
-  const ink = rgb(0.17, 0.18, 0.15),
-    red = rgb(0.84, 0.23, 0.14),
-    cream = rgb(0.98, 0.96, 0.9);
-  const chapters = [
-    ["Small things,", "made slowly."],
-    ["A note", "on paper."],
-    ["01", "Look closely."],
-    ["A page is", "a place."],
-    ["02", "Leave room."],
-    ["Less ink.", "More space."],
-    ["03", "Make a mark."],
-    ["A useful", "little thing."],
-    ["04", "Fold here."],
-    ["Ideas need", "a surface."],
-    ["Keep it.", "Pass it on."],
-    ["The end.", "The beginning."],
-  ];
-  for (let i = 0; i < 12; i++) {
+  const regular = await pdf.embedFont(StandardFonts.Helvetica);
+  const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
+  const ink = rgb(0.15, 0.17, 0.14);
+  const muted = rgb(0.43, 0.46, 0.41);
+  const line = rgb(0.76, 0.78, 0.73);
+
+  for (let number = 1; number <= 12; number++) {
     const page = pdf.addPage([420, 595]);
-    const reverse = i === 0 || i === 11;
-    const foreground = reverse ? cream : ink;
-    page.drawRectangle({
-      x: 0,
-      y: 0,
-      width: 420,
-      height: 595,
-      color: reverse ? red : cream,
-    });
-    page.drawText("FOLDPRESS  /  PAPER STUDIES", {
-      x: 32,
-      y: 550,
-      size: 9,
-      font: sans,
-      color: foreground,
+    // The arrow and top label make reversed duplex printing visible at a glance.
+    page.drawText("TOP", { x: 199, y: 540, size: 10, font: bold, color: ink });
+    page.drawLine({
+      start: { x: 210, y: 555 },
+      end: { x: 210, y: 579 },
+      thickness: 1.2,
+      color: ink,
     });
     page.drawLine({
-      start: { x: 32, y: 533 },
-      end: { x: 388, y: 533 },
+      start: { x: 210, y: 579 },
+      end: { x: 204, y: 572 },
+      thickness: 1.2,
+      color: ink,
+    });
+    page.drawLine({
+      start: { x: 210, y: 579 },
+      end: { x: 216, y: 572 },
+      thickness: 1.2,
+      color: ink,
+    });
+    page.drawText("BOOKLET TEST", {
+      x: 30,
+      y: 501,
+      size: 10,
+      font: regular,
+      color: muted,
+    });
+    page.drawLine({
+      start: { x: 30, y: 484 },
+      end: { x: 390, y: 484 },
       thickness: 0.6,
-      color: foreground,
+      color: line,
     });
-    page.drawText(chapters[i][0], {
-      x: 32,
-      y: 460,
-      size: 42,
-      font: serif,
-      color: foreground,
+    const label =
+      number === 1
+        ? "Front cover"
+        : number === 12
+          ? "Back cover"
+          : "Inside page";
+    page.drawText(label, {
+      x: 30,
+      y: 454,
+      size: 16,
+      font: regular,
+      color: ink,
     });
-    page.drawText(chapters[i][1], {
-      x: 32,
-      y: 412,
-      size: 39,
-      font: italic,
-      color: foreground,
+    const numeral = String(number);
+    const size = 182;
+    page.drawText(numeral, {
+      x: (420 - bold.widthOfTextAtSize(numeral, size)) / 2,
+      y: 240,
+      size,
+      font: bold,
+      color: ink,
     });
-    if (reverse) {
-      page.drawCircle({
-        x: 210,
-        y: 228,
-        size: 102,
-        borderWidth: 1,
-        borderColor: cream,
-      });
-      page.drawLine({
-        start: { x: 210, y: 111 },
-        end: { x: 210, y: 345 },
-        thickness: 1,
-        color: cream,
-      });
-      page.drawText(i === 0 ? "A LITTLE BOOK" : "PRINT. FOLD. KEEP.", {
-        x: i === 0 ? 167 : 151,
-        y: 223,
-        size: 10,
-        font: sans,
-        color: cream,
-      });
-    } else {
-      for (let n = 0; n < 6; n++) {
-        page.drawRectangle({
-          x: 32 + (n % 3) * 122,
-          y: 160 + Math.floor(n / 3) * 82,
-          width: 108,
-          height: 68,
-          borderWidth: 0.6,
-          borderColor: red,
-        });
-        page.drawLine({
-          start: { x: 86 + (n % 3) * 122, y: 160 + Math.floor(n / 3) * 82 },
-          end: { x: 86 + (n % 3) * 122, y: 228 + Math.floor(n / 3) * 82 },
-          thickness: 0.5,
-          color: red,
-        });
-      }
-      page.drawText("An ordinary sheet. An unexpected possibility.", {
-        x: 32,
-        y: 113,
+    const instructions =
+      number === 1 || number === 12
+        ? [
+            "This page belongs on the outside.",
+            "After folding, all arrows should point up.",
+          ]
+        : [
+            "After folding, pages should run from 1 to 12.",
+            "If this arrow points down, change the duplex setting.",
+          ];
+    instructions.forEach((text, index) =>
+      page.drawText(text, {
+        x: 30,
+        y: 158 - index * 20,
         size: 11,
-        font: italic,
-        color: ink,
-      });
-    }
+        font: regular,
+        color: muted,
+      }),
+    );
     page.drawLine({
-      start: { x: 32, y: 61 },
-      end: { x: 388, y: 61 },
+      start: { x: 30, y: 81 },
+      end: { x: 390, y: 81 },
       thickness: 0.6,
-      color: foreground,
+      color: line,
     });
-    page.drawText(`NO. ${String(i + 1).padStart(2, "0")}`, {
-      x: 32,
-      y: 39,
+    page.drawText(`Page ${number} of 12`, {
+      x: 30,
+      y: 54,
+      size: 10,
+      font: regular,
+      color: muted,
+    });
+    page.drawText("Read in numerical order after folding", {
+      x: 208,
+      y: 54,
       size: 9,
-      font: sans,
-      color: foreground,
-    });
-    page.drawText("A PRINT-AT-HOME SPECIMEN", {
-      x: 254,
-      y: 39,
-      size: 8,
-      font: sans,
-      color: foreground,
+      font: regular,
+      color: muted,
     });
   }
-  pdf.setTitle("Paper studies — Foldpress specimen");
+  pdf.setTitle("Booklet print test - 12 pages");
   return pdf.save();
 }

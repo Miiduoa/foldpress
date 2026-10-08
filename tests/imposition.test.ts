@@ -192,7 +192,7 @@ describe("actual PDF output", () => {
     );
     expect(output.getPageCount()).toBe(2);
   });
-  test("twelve-page specimen exports all twelve page numbers", async () => {
+  test("twelve-page print test exports all page numbers", async () => {
     const source = await loadSource(await createSample());
     const text = await readText(
       await impose(source, { paper: "A4", binding: "left", marginMm: 5 }),
@@ -201,7 +201,7 @@ describe("actual PDF output", () => {
       page.items.filter((item) => "str" in item).map((item) => item.str),
     );
     for (let i = 1; i <= 12; i++)
-      expect(textItems).toContain(`NO. ${String(i).padStart(2, "0")}`);
+      expect(textItems).toContain(`Page ${i} of 12`);
   });
 });
 
